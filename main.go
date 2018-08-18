@@ -31,18 +31,26 @@ func main() {
 	router.GET("/ws", socketHandler)
 
 	accounts := router.Group("/accounts")
-	/*accounts.GET("/", getAccounts).Name = "get-all-accounts"
+	accounts.GET("/", getAccounts).Name = "get-all-accounts"
 	accounts.POST("/", addAccount).Name = "add-account"
 
 	accounts.GET("/:id", getAccount).Name = "get-account"
 	accounts.PATCH("/:id", updateAccount).Name = "update-account"
 	accounts.DELETE("/:id", deleteAccount).Name = "delete-account"
 
-	accounts.POST("/create", createAccount)
-	accounts.GET("/create/:id", getCreateStatus)
+	accounts.POST("/create", createAccount).Name = "create-account"
+	accounts.GET("/create/:id", getCreateStatus).Name = "get-create-account-status"
 
-	accounts.POST("/resetpw", resetPassword)*/
-	accounts.GET("/resetpw/:id", getResetStatus)
+	accounts.POST("/resetpw", resetPassword).Name = "reset-password"
+	accounts.GET("/resetpw/:id", getResetStatus).Name = "get-reset-password-status"
+
+	servers := router.Group("/servers")
+	servers.GET("/", getServers).Name = "get-all-servers"
+	servers.POST("/", addServer).Name = "add-server"
+
+	servers.GET("/:id", getServer).Name = "get-server"
+	servers.POST("/:id", updateServer).Name = "update-server"
+	servers.DELETE("/:id", deleteAccount).Name = "delete-server"
 
 	router.Logger.Fatal(router.Start(":8080"))
 }
