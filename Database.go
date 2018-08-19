@@ -5,14 +5,13 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-const CONNECTION_STRING = "root:DEluxe8892@/runemanager"
 var (
 	pool *db.Connection
 	err error
 )
 
 func setupDatabase() {
-	pool, err = db.Open("mysql", CONNECTION_STRING, nil)
+	pool, err = db.Open("mysql", config.DatabaseConnectionString, nil)
 	if err != nil {
 		panic(err)
 	}

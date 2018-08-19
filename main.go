@@ -13,6 +13,7 @@ var (
 )
 
 func main() {
+	loadConfig()
 	setupDatabase()
 
 	router := echo.New()
@@ -31,7 +32,7 @@ func main() {
 	router.GET("/ws", socketHandler)
 
 	accounts := router.Group("/accounts")
-	accounts.GET("/", getAccounts).Name = "get-all-accounts"
+	accounts.GET("/all", getAccounts).Name = "get-all-accounts"
 	accounts.POST("/", addAccount).Name = "add-account"
 
 	accounts.GET("/:id", getAccount).Name = "get-account"
@@ -44,13 +45,23 @@ func main() {
 	accounts.POST("/resetpw", resetPassword).Name = "reset-password"
 	accounts.GET("/resetpw/:id", getResetStatus).Name = "get-reset-password-status"
 
-	servers := router.Group("/servers")
-	servers.GET("/", getServers).Name = "get-all-servers"
+	/*servers := router.Group("/servers")
+	servers.GET("/all", getServers).Name = "get-all-servers"
 	servers.POST("/", addServer).Name = "add-server"
 
 	servers.GET("/:id", getServer).Name = "get-server"
-	servers.POST("/:id", updateServer).Name = "update-server"
+	servers.PATCH("/:id", updateServer).Name = "update-server"
 	servers.DELETE("/:id", deleteAccount).Name = "delete-server"
+
+	servers.GET("/:id/clients", getClientsForServer).Name = "get-all-clients-for-server"
+
+	clients := router.Group("/clients")
+	clients.POST("/all", addClient).Name = "add-client"
+
+	clients.GET("/:id", getClient).Name = "get-client"
+	clients.PATCH("/:id", updateClient).Name = "update-client"
+	clients.DELETE("/:id", deleteClient).Name = "delete-client"*/
+	
 
 	router.Logger.Fatal(router.Start(":8080"))
 }
