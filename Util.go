@@ -6,6 +6,7 @@ import (
 	"time"
 	"strconv"
 	"fmt"
+	"github.com/fatih/color"
 )
 
 func timestamp() int64 {
@@ -23,13 +24,23 @@ func ParamToInt64(c echo.Context, param string) (int64, bool) {
 	return 0, false
 }
 
-func debug(str string) {
+func PrintError(str string) {
+	color.Red(str)
+}
+
+func PrintDebug(str string) {
 	if debugging {
-		fmt.Println(str)
+		color.Yellow(str)
 	}
 }
 
-func validateRequest(request *APIRequest, required []string, disallowed ...string) (bool, []string) {
+func PrintSuccess(str string) {
+	if debugging {
+		color.Green(str)
+	}
+}
+
+func ValidateRequest(request *APIRequest, required []string, disallowed ...string) (bool, []string) {
 	var result []string
 	for _, r := range required {
 		if _, ok := request.ApiArguments[r]; !ok {
@@ -44,7 +55,7 @@ func validateRequest(request *APIRequest, required []string, disallowed ...strin
 	}
 
 	if len(result) > 0 {
-		debug(fmt.Sprintf("Missing required api arguments. %+v", result))
+		PrintError(fmt.Sprintf("Missing required api arguments. %+v", result))
 	}
 
 	return len(result) == 0, result
@@ -78,4 +89,12 @@ func Delete(qs string, args map[string]interface{}) (sql.Result, error) {
 
 func Update(qs string, args map[string]interface{}) (sql.Result, error) {
 	return pool.NamedExec(qs, args)
+}
+
+func APIFail(reason interface{}) *APIResponse {
+	return &APIResponse{ Success: false, Result: UpdateFail }
+}
+
+func APISuccess(reason interface{}) *APIResponse {
+	return &APIResponse{ Success: true, Result: reason }
 }

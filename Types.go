@@ -4,6 +4,15 @@ import (
 	"github.com/labstack/echo"
 )
 
+const (
+	InsertFail = "insert-fail"
+	SelectFail = "select-fail"
+	UpdateFail = "update-fail"
+	DeleteFail = "delete-fail"
+	NoInsertID = "no-insert-id"
+	NoRowsAffected = "no-rows-affected"
+)
+
 
 type Account struct {
 	ID			int64	`json:"id" db:"ID" static:"true"`
