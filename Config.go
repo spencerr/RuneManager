@@ -13,13 +13,14 @@ type Config struct {
 
 var (
 	config *Config
+	debugging bool
 )
 
 func loadConfig() {
-	
 	if data, err := ioutil.ReadFile("config.json"); err == nil {
 		if err := json.Unmarshal(data, &config); err == nil {
 			fmt.Printf("Successfully loaded configurations. Environment set to %s", config.Environment)
+			debugging = config.Environment == "dev"
 			return
 		}
 	}

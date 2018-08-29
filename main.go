@@ -1,51 +1,50 @@
 package main
 
 import (
-	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"net/http"
-	"fmt"
+	"github.com/fatih/structs"
 )
 
 var (
-	upgrader = websocket.Upgrader{}
+	router *echo.Echo
 )
 
 func main() {
 	loadConfig()
 	setupDatabase()
 
-	router := echo.New()
+	router = echo.New()
 	router.Use(middleware.Logger())
 	router.Use(middleware.Recover())
 	router.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
-		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH,    echo.POST, echo.DELETE},
+		AllowOrigins: []string{ "*" },
+		AllowMethods: []string{ echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE },
 	}))
 	
 
-	router.GET("/", func (c echo.Context) error {
-		return c.String(http.StatusOK, "")
-	})
+	router.File("/", "public/index.html")
 
 	router.GET("/ws", socketHandler)
 
 	accounts := router.Group("/accounts")
-	accounts.GET("/all", getAccounts).Name = "get-all-accounts"
-	accounts.POST("/", addAccount).Name = "add-account"
+	accounts.GET("/all", accountHandler).Name = "get-all-accounts"
+	accounts.POST("/", accountHandler).Name = "add-account"
 
-	accounts.GET("/:id", getAccount).Name = "get-account"
-	accounts.PATCH("/:id", updateAccount).Name = "update-account"
-	accounts.DELETE("/:id", deleteAccount).Name = "delete-account"
+	accounts.GET("/:id", accountHandler).Name = "get-account"
+	accounts.PATCH("/:id", accountHandler).Name = "update-account"
+	accounts.DELETE("/:id", accountHandler).Name = "delete-account"
+	accounts.GET("/:id/lock", accountHandler).Name = "lock-account"
+	accounts.GET("/:id/ban", accountHandler).Name = "ban-account"
 
-	accounts.POST("/create", createAccount).Name = "create-account"
+	/*accounts.POST("/create", createAccount).Name = "create-account"
 	accounts.GET("/create/:id", getCreateStatus).Name = "get-create-account-status"
 
 	accounts.POST("/resetpw", resetPassword).Name = "reset-password"
 	accounts.GET("/resetpw/:id", getResetStatus).Name = "get-reset-password-status"
 
-	/*servers := router.Group("/servers")
+	servers := router.Group("/servers")
 	servers.GET("/all", getServers).Name = "get-all-servers"
 	servers.POST("/", addServer).Name = "add-server"
 
@@ -61,30 +60,23 @@ func main() {
 	clients.GET("/:id", getClient).Name = "get-client"
 	clients.PATCH("/:id", updateClient).Name = "update-client"
 	clients.DELETE("/:id", deleteClient).Name = "delete-client"*/
-	
 
+	go hub.run()
 	router.Logger.Fatal(router.Start(":8080"))
 }
 
-func socketHandler(c echo.Context) error {
-	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
-	if err != nil {
-		return err
-	}
-
-	defer ws.Close()
-
-	for {
-		err := ws.WriteMessage(websocket.TextMessage, []byte("Hello, Client!"))
-		if err != nil {
-			c.Logger().Error(err)
-		}
-
-		_, msg, err := ws.ReadMessage()
-		if err != nil {
-			c.Logger().Error(err)
-		}
-		fmt.Printf("%s\n", msg)
-	}
+func accountHandler(c echo.Context) error {
+	arguments := structs.Map(BindAccount(c))
+	arguments["ApiKey"] = "asdf1234"
+	return c.JSON(http.StatusOK, functions[getRouteName(c)](&APIRequest{ ApiArguments: arguments }))
 }
 
+func getRouteName(c echo.Context) string {
+	for _, route := range router.Routes() {
+		if route.Path == c.Path() && route.Method == c.Request().Method {
+			return route.Name
+		}
+	}
+
+	return ""
+}

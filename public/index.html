@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>WebSocket</title>
+</head>
+
+<body>
+  <p id="output"></p>
+
+  <script>
+    var loc = window.location;
+    var uri = 'ws:';
+
+    if (loc.protocol === 'https:') {
+      uri = 'wss:';
+    }
+    uri += '//' + loc.host;
+    uri += loc.pathname + 'ws';
+
+    ws = new WebSocket(uri)
+
+    ws.onopen = function() {
+      console.log('Connected')
+      
+      ws.send(JSON.stringify({
+        Type: "APIRequest",
+        ApiRoute: "update-account",
+        ApiArguments: {
+          ApiKey: "asdf1234",
+          ID: 1,
+          Email: "test@test.com"
+        }
+      }));
+
+      ws.send(JSON.stringify({
+        Type: "APIRequest",
+        ApiRoute: "get-account",
+        ApiArguments: {
+          ApiKey: "asdf1234",
+          ID: 1
+        }
+      }));
+
+      ws.send(JSON.stringify({
+        Type: "APIRequest",
+        ApiRoute: "delete-account",
+        ApiArguments: {
+          ApiKey: "asdf1234",
+          ID: 1,
+        }
+      }));
+
+      ws.send(JSON.stringify({
+        Type: "APIRequest",
+        ApiRoute: "add-account",
+        ApiArguments: {
+          ApiKey: "asdf1234",
+          ID: 1,
+          Email: "test@test.com",
+          Password: "test"
+        }
+      }));
+
+    }
+
+    ws.onmessage = function(evt) {
+      var out = document.getElementById('output');
+      out.innerHTML += evt.data + '<br>';
+    }
+  </script>
+</body>
+
+</html>
