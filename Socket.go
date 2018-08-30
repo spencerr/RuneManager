@@ -99,7 +99,7 @@ func (s *Socket) writePump() {
 }
 
 // serveWs handles websocket requests from the peer.
-func socketHandler(c echo.Context) (err error) {
+func SocketHandler(c echo.Context) (err error) {
 	conn, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		log.Println(err)

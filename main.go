@@ -12,8 +12,6 @@ var (
 )
 
 func main() {
-	loadConfig()
-	setupDatabase()
 
 	router = echo.New()
 	router.Use(middleware.Logger())
@@ -25,26 +23,25 @@ func main() {
 	
 
 	router.File("/", "public/index.html")
-
-	router.GET("/ws", socketHandler)
+	router.GET("/ws", SocketHandler)
 
 	accounts := router.Group("/accounts")
-	accounts.GET("/all", accountHandler).Name = "get-all-accounts"
-	accounts.POST("/", accountHandler).Name = "add-account"
+	accounts.GET("/all", AccountHandler).Name = "get-all-accounts"
+	accounts.POST("/", AccountHandler).Name = "add-account"
 
-	accounts.GET("/:id", accountHandler).Name = "get-account"
-	accounts.PATCH("/:id", accountHandler).Name = "update-account"
-	accounts.DELETE("/:id", accountHandler).Name = "delete-account"
-	accounts.GET("/:id/lock", accountHandler).Name = "lock-account"
-	accounts.GET("/:id/ban", accountHandler).Name = "ban-account"
+	accounts.GET("/:id", AccountHandler).Name = "get-account"
+	accounts.PATCH("/:id", AccountHandler).Name = "update-account"
+	accounts.DELETE("/:id", AccountHandler).Name = "delete-account"
+	accounts.GET("/:id/lock", AccountHandler).Name = "lock-account"
+	accounts.GET("/:id/ban", AccountHandler).Name = "ban-account"
 
-	/*accounts.POST("/create", createAccount).Name = "create-account"
-	accounts.GET("/create/:id", getCreateStatus).Name = "get-create-account-status"
+	accounts.POST("/create", AccountHandler).Name = "create-account"
+	accounts.GET("/create/:id", AccountHandler).Name = "get-create-account-status"
 
-	accounts.POST("/resetpw", resetPassword).Name = "reset-password"
-	accounts.GET("/resetpw/:id", getResetStatus).Name = "get-reset-password-status"
+	accounts.POST("/resetpw", AccountHandler).Name = "reset-password"
+	accounts.GET("/resetpw/:id", AccountHandler).Name = "get-reset-password-status"
 
-	servers := router.Group("/servers")
+	/*servers := router.Group("/servers")
 	servers.GET("/all", getServers).Name = "get-all-servers"
 	servers.POST("/", addServer).Name = "add-server"
 
@@ -65,13 +62,11 @@ func main() {
 	router.Logger.Fatal(router.Start(":8080"))
 }
 
-func accountHandler(c echo.Context) error {
-	arguments := structs.Map(BindAccount(c))
-	arguments["ApiKey"] = "asdf1234"
-	return c.JSON(http.StatusOK, functions[getRouteName(c)](&APIRequest{ ApiArguments: arguments }))
+func AccountHandler(c echo.Context) error {
+	return c.JSON(http.StatusOK, functions[GetRouteName(c)](&APIRequest{ ApiArguments: structs.Map(BindAccount(c)) }))
 }
 
-func getRouteName(c echo.Context) string {
+func GetRouteName(c echo.Context) string {
 	for _, route := range router.Routes() {
 		if route.Path == c.Path() && route.Method == c.Request().Method {
 			return route.Name

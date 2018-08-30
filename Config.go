@@ -16,7 +16,7 @@ var (
 	debugging bool
 )
 
-func loadConfig() {
+func init() {
 	if data, err := ioutil.ReadFile("config.json"); err == nil {
 		if err := json.Unmarshal(data, &config); err == nil {
 			fmt.Printf("Successfully loaded configurations. Environment set to %s", config.Environment)

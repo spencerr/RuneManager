@@ -1,81 +1,12 @@
 package main
 
 import (
-	//"github.com/labstack/echo"
 	_ "github.com/jmoiron/sqlx"
-	//"net/http"
 	"fmt"
 	"reflect"
 )
 
-
-/*func getResetStatus(c echo.Context) error {
-	request := BindPasswordResetRequest(c)
-	if (request == nil) {
-		return c.JSON(http.StatusOK, &RequestResult{ Success: false, Message: "Invalid password reset request id given." })
-	}
-
-	session := pool.NewSession(nil)
-	if err := session.Select("*").From("password_reset_request").Where("id = ?", request.ID).LoadOne(&request); err != nil {
-		return c.JSON(http.StatusOK, &RequestResult{ Success: false, Message: fmt.Sprintf("Password reset request with the ID %d does not exist.", request.ID) })
-	}
-
-	return c.JSON(http.StatusOK, &RequestResult{ Success: true, Result: request })
-}
-
-func resetPassword(c echo.Context) error {
-	request := BindPasswordResetRequest(c)
-	if request == nil {
-		return c.JSON(http.StatusOK, &RequestResult{ Success: false, Message: "Unable to create a password reset request. Please ensure you are passing the required values." })
-	}
-
-	request.StartTime = timestamp()
-	session := pool.NewSession(nil)
-	session.InsertInto("password_reset_request").Columns("AccountID", "NewPassword").Record(&request).Exec()
-
-	return c.JSON(http.StatusOK, request)
-}
-
-func getCreateStatus(c echo.Context) error {
-	request := BindAccountCreationRequest(c)
-	if request == nil {
-		return c.JSON(http.StatusOK, &RequestResult{ Success: false, Message: "Invalid account creation request id given." })
-	}
-
-	session := pool.NewSession(nil)
-	if err := session.Select("*").From("account_creation_request").Where("id = ?", request.ID).LoadOne(&request); err != nil {
-		return c.JSON(http.StatusOK, &RequestResult{ Success: false, Message: fmt.Sprintf("Account creation request with the ID %d does not exist.", request.ID) })
-	}
-
-	return c.JSON(http.StatusOK, &RequestResult{ Success: true, Result: request })
-}
-
-func createAccount(c echo.Context) error {
-	request := BindAccountCreationRequest(c)
-	if request == nil {
-		return c.JSON(http.StatusOK, &RequestResult{ Success: false, Message: "Unable to create an account creation request. Please ensure you are passing the required values." })
-	}
-
-	request.StartTime = timestamp()
-	session := pool.NewSession(nil)
-	session.InsertInto("account_creation_request").Columns("email", "password", "start_time", "age").Record(&request).Exec()
-	
-	return c.JSON(http.StatusOK, &RequestResult{ Success: true, Result: request })
-}
-
-func updateAccount(c echo.Context) error {
-	account := BindAccount(c)
-	if account == nil {
-		return c.JSON(http.StatusOK, &RequestResult{ Success: false, Message: "Invalid account information given." })
-	}
-
-	session := pool.NewSession(nil)
-	session.Update("accounts").Set("email = ?", account.Email).Set("password = ?", account.Password).Where("id = ?", account.ID).Exec()
-
-	return c.JSON(http.StatusOK, &RequestResult{ Success: true, Result: account })
-}*/
-
-func getAccounts(request *APIRequest) *APIResponse {
+func GetAccounts(request *APIRequest) *APIResponse {
 	if ok, err := ValidateRequest(request, []string { "ApiKey" }); !ok {
 		return APIFail(err)
 	}
@@ -91,7 +22,7 @@ func getAccounts(request *APIRequest) *APIResponse {
 	return APISuccess(accounts)
 }
 
-func addAccount(request *APIRequest) *APIResponse {
+func AddAccount(request *APIRequest) *APIResponse {
 	if ok, err := ValidateRequest(request, []string { "ApiKey", "Email", "Password" }); !ok {
 		return APIFail(err)
 	}
@@ -112,11 +43,10 @@ func addAccount(request *APIRequest) *APIResponse {
 	return APISuccess(lastInsertId)
 }
 
-func getAccount(request *APIRequest) *APIResponse {
+func GetAccount(request *APIRequest) *APIResponse {
 	if ok, err := ValidateRequest(request, []string { "ApiKey", "ID" }); !ok {
 		return APIFail(err)
 	}
-
 
 	var account Account
 	qs := "SELECT Accounts.ID, Accounts.UserID, Accounts.Email, Accounts.Password, Accounts.Locks, Accounts.Banned FROM Accounts JOIN Users ON Users.ID = Accounts.UserID WHERE Users.ApiKey = :ApiKey AND Accounts.ID = :ID"
@@ -129,7 +59,7 @@ func getAccount(request *APIRequest) *APIResponse {
 	return APISuccess(account)
 }
 
-func updateAccount(request *APIRequest) *APIResponse {
+func UpdateAccount(request *APIRequest) *APIResponse {
 	if ok, err := ValidateRequest(request, []string { "ApiKey", "ID" }, "UserID"); !ok {
 		return APIFail(err)
 	}
@@ -170,7 +100,7 @@ func updateAccount(request *APIRequest) *APIResponse {
 }
 
 
-func deleteAccount(request *APIRequest) *APIResponse {
+func DeleteAccount(request *APIRequest) *APIResponse {
 	if ok, err := ValidateRequest(request, []string { "ApiKey", "ID" }); !ok {
 		return APIFail(err)
 	}
@@ -191,7 +121,7 @@ func deleteAccount(request *APIRequest) *APIResponse {
 	return APISuccess(rowsAffected)
 }
 
-func lockAccount(request *APIRequest) *APIResponse {
+func LockAccount(request *APIRequest) *APIResponse {
 	if ok, err := ValidateRequest(request, []string { "ApiKey", "ID" }); !ok {
 		return APIFail(err)
 	}
@@ -212,7 +142,7 @@ func lockAccount(request *APIRequest) *APIResponse {
 	return APISuccess(rowsAffected)
 }
 
-func banAccount(request *APIRequest) *APIResponse {
+func BanAccount(request *APIRequest) *APIResponse {
 	if ok, err := ValidateRequest(request, []string { "ApiKey", "ID" }); !ok {
 		return APIFail(err)
 	}
@@ -233,7 +163,7 @@ func banAccount(request *APIRequest) *APIResponse {
 	return APISuccess(rowsAffected)
 }
 
-func getResetStatus(request *APIRequest) *APIResponse {
+func GetResetPasswordStatus(request *APIRequest) *APIResponse {
 	if ok, err := ValidateRequest(request, []string { "ApiKey", "ID" }); !ok {
 		return APIFail(err)
 	}
@@ -249,13 +179,13 @@ func getResetStatus(request *APIRequest) *APIResponse {
 	return APISuccess(req)
 }
 
-func resetPassword(request *APIRequest) *APIResponse {
+func ResetAccountPassword(request *APIRequest) *APIResponse {
 	if ok, err := ValidateRequest(request, []string { "ApiKey", "NewPassword", "ID" }); !ok {
 		return APIFail(err)
 	}
 
 	qs := `INSERT INTO PasswordResetRequests(UserID, AccountID, NewPassword, StartTime) VALUES((SELECT ID FROM Users WHERE ApiKey = :ApiKey), :ID, :NewPassword, :StartTime)`
-	request.ApiArguments["StartTime"] = timestamp()
+	request.ApiArguments["StartTime"] = Timestamp()
 
 	result, err := Insert(qs, request.ApiArguments)
 	if err != nil {
@@ -272,7 +202,7 @@ func resetPassword(request *APIRequest) *APIResponse {
 	return APISuccess(lastInsertId)
 }
 
-func getCreateStatus(request *APIRequest) *APIResponse {
+func GetCreateAccountStatus(request *APIRequest) *APIResponse {
 	if ok, err := ValidateRequest(request, []string { "ApiKey", "ID" }); !ok {
 		return APIFail(err)
 	}
@@ -288,13 +218,13 @@ func getCreateStatus(request *APIRequest) *APIResponse {
 	return APISuccess(req)
 }
 
-func createAccount(request *APIRequest) *APIResponse {
+func CreateAccount(request *APIRequest) *APIResponse {
 	if ok, err := ValidateRequest(request, []string { "ApiKey", "Email", "DisplayName", "Password", "Age" }); !ok {
 		return APIFail(err)
 	}
 
 	qs := `INSERT INTO AccountCreationRequests(UserID, Email, DisplayName, Password, Age, StartTime) VALUES((SELECT ID FROM Users WHERE ApiKey = :ApiKey), :Email, :DisplayName, :Password, :Age, :StartTime)`
-	request.ApiArguments["StartTime"] = timestamp()
+	request.ApiArguments["StartTime"] = Timestamp()
 
 	result, err := Insert(qs, request.ApiArguments)
 	if err != nil {

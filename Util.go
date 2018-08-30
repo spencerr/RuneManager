@@ -9,7 +9,7 @@ import (
 	"github.com/fatih/color"
 )
 
-func timestamp() int64 {
+func Timestamp() int64 {
     return time.Now().UnixNano() / int64(time.Millisecond)
 }
 
@@ -92,7 +92,7 @@ func Update(qs string, args map[string]interface{}) (sql.Result, error) {
 }
 
 func APIFail(reason interface{}) *APIResponse {
-	return &APIResponse{ Success: false, Result: UpdateFail }
+	return &APIResponse{ Success: false, Result: reason }
 }
 
 func APISuccess(reason interface{}) *APIResponse {

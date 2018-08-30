@@ -56,14 +56,19 @@ type APIResponse struct {
 
 var (
 	functions = map[string] func(*APIRequest) *APIResponse {
-		"get-all-accounts": getAccounts,
-		"add-account": addAccount,
+		"get-all-accounts": GetAccounts,
+		"add-account": AddAccount,
 
-		"get-account": getAccount,
-		"update-account": updateAccount,
-		"delete-account": deleteAccount,
-		"lock-account": lockAccount,
-		"ban-account": banAccount,
+		"get-account": GetAccount,
+		"update-account": UpdateAccount,
+		"delete-account": DeleteAccount,
+		"lock-account": LockAccount,
+		"ban-account": BanAccount,
+
+		"create-account": CreateAccount,
+		"get-create-account-status": GetCreateAccountStatus,
+		"reset-password": ResetAccountPassword,
+		"get-reset-password-status": GetResetPasswordStatus
 	}
 )
 

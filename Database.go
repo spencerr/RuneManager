@@ -12,7 +12,7 @@ var (
 	err error
 )
 
-func setupDatabase() {
+func init() {
 	if pool, err = sqlx.Open("mysql", config.DatabaseConnectionString); err != nil {
 		panic(fmt.Sprintf("Unable to open database connection. %s", err))
 	}
