@@ -54,25 +54,6 @@ type APIResponse struct {
 	Result			interface{}
 }
 
-var (
-	functions = map[string] func(*APIRequest) *APIResponse {
-		"get-all-accounts": GetAccounts,
-		"add-account": AddAccount,
-
-		"get-account": GetAccount,
-		"update-account": UpdateAccount,
-		"delete-account": DeleteAccount,
-		"lock-account": LockAccount,
-		"ban-account": BanAccount,
-
-		"create-account": CreateAccount,
-		"get-create-account-status": GetCreateAccountStatus,
-		"reset-password": ResetAccountPassword,
-		"get-reset-password-status": GetResetPasswordStatus
-	}
-)
-
-
 var hub = newHub()
 
 func newHub() *Hub {
@@ -104,7 +85,7 @@ func (h *Hub) run() {
 				var apiRequest APIRequest
 				if json.Unmarshal(data.Message, &apiRequest) == nil {
 					fmt.Printf("Attempting to request with data %+v", apiRequest)
-					if bytes, err := json.Marshal(functions[apiRequest.ApiRoute](&apiRequest)); err == nil {
+					if bytes, err := json.Marshal(Functions[apiRequest.ApiRoute](&apiRequest)); err == nil {
 						data.Socket.send <- bytes
 					}
 				}

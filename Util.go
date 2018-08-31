@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"fmt"
 	"github.com/fatih/color"
+	"reflect"
 )
 
 func Timestamp() int64 {
@@ -40,17 +41,22 @@ func PrintSuccess(str string) {
 	}
 }
 
-func ValidateRequest(request *APIRequest, required []string, disallowed ...string) (bool, []string) {
+func ValidateRequest(request *APIRequest, required []string, disallowed []string) (bool, []string) {
 	var result []string
-	for _, r := range required {
-		if _, ok := request.ApiArguments[r]; !ok {
-			result = append(result, "missing " + r)
+
+	if required != nil {
+		for _, r := range required {
+			if _, ok := request.ApiArguments[r]; !ok {
+				result = append(result, "missing " + r)
+			}
 		}
 	}
 
-	for _, r := range disallowed {
-		if _, ok := request.ApiArguments[r]; ok {
-			result = append(result, r + " not allowed")
+	if disallowed != nil {
+		for _, r := range disallowed {
+			if _, ok := request.ApiArguments[r]; ok {
+				result = append(result, r + " not allowed")
+			}
 		}
 	}
 
@@ -97,4 +103,123 @@ func APIFail(reason interface{}) *APIResponse {
 
 func APISuccess(reason interface{}) *APIResponse {
 	return &APIResponse{ Success: true, Result: reason }
+}
+
+func ValidateAndSelectAll(request *APIRequest, dest interface{}, qs string, required []string, disallowed ...string) *APIResponse {
+	if ok, err := ValidateRequest(request, required, disallowed); !ok {
+		return APIFail(err)
+	}
+
+	if err := SelectAll(dest, qs, request.ApiArguments); err != nil {
+		PrintError(fmt.Sprintf("Error trying to select all. %+v", err))
+		return APIFail(SelectFail)
+	}
+
+	return APISuccess(dest)
+}
+
+func ValidateAndSelectOne(request *APIRequest, dest interface{}, qs string, required []string, disallowed ...string) *APIResponse {
+	if ok, err := ValidateRequest(request, required, disallowed); !ok {
+		return APIFail(err)
+	}
+
+	if err := SelectOne(dest, qs, request.ApiArguments); err != nil {
+		PrintError(fmt.Sprintf("Error trying to select one. %+v", err))
+		return APIFail(SelectFail)
+	}
+
+	return APISuccess(dest)
+}
+
+func ValidateAndDelete(request *APIRequest, qs string, required []string, disallowed ...string) *APIResponse {
+	if ok, err := ValidateRequest(request, required, disallowed); !ok {
+		return APIFail(err)
+	}
+
+	result, err := Delete(qs, request.ApiArguments)
+	if err != nil {
+		PrintError(fmt.Sprintf("Error trying to delete. %+v", err))
+		return APIFail(DeleteFail)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return APIFail(NoRowsAffected)
+	}
+
+	return APISuccess(rowsAffected)
+}
+
+func ValidateAndInsert(request *APIRequest, qs string, required []string, disallowed ...string) *APIResponse {
+	if ok, err := ValidateRequest(request, required, disallowed); !ok {
+		return APIFail(err)
+	}
+
+	result, err := Insert(qs, request.ApiArguments)
+	if err != nil {
+		PrintError(fmt.Sprintf("Error trying to insert. %+v", err))
+		return APIFail(InsertFail)
+	}
+
+	lastInsertId, err := result.LastInsertId()
+	if err != nil {
+		return APIFail(NoInsertID)
+	}
+
+	return APISuccess(lastInsertId)
+}
+
+func ValidateAndUpdateFromStruct(request *APIRequest, dest interface{}, table string, qs string, qs2 string, required []string, disallowed ...string) *APIResponse {
+	if ok, err := ValidateRequest(request, required, disallowed); !ok {
+		return APIFail(err)
+	}
+
+	keys := ``
+	elem := reflect.ValueOf(dest).Elem()
+	for i := 0; i < elem.NumField(); i++ {
+		field := elem.Type().Field(i)
+		if tag, ok := field.Tag.Lookup("static"); ok && tag == "true" {
+			continue
+		}
+
+		key := field.Name
+		if _, ok := request.ApiArguments[key]; ok {
+			if len(keys) != 0 {
+				keys += `,`
+			}
+			keys += ` ` + table + `.` + key + ` = :` + key
+		}
+	}
+
+	result, err := Update(qs + keys + qs2, request.ApiArguments)
+	if err != nil {
+		PrintError(fmt.Sprintf("Error trying to update from struct. %+v", err))
+		return APIFail(UpdateFail)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return APIFail(NoRowsAffected)
+	}
+
+	return APISuccess(rowsAffected)
+}
+
+func ValidateAndUpdate(request *APIRequest, qs string, required []string, disallowed ...string) *APIResponse {
+	if ok, err := ValidateRequest(request, required, disallowed); !ok {
+		return APIFail(err)
+	}
+
+	result, err := Update(qs, request.ApiArguments)
+	if err != nil {
+		PrintError(fmt.Sprintf("Error trying to update. %+v", err))
+		return APIFail(UpdateFail)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return APIFail(NoRowsAffected)
+	}
+
+	return APISuccess(rowsAffected)
 }

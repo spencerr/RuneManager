@@ -13,6 +13,24 @@ const (
 	NoRowsAffected = "no-rows-affected"
 )
 
+var (
+	Functions = map[string] func(*APIRequest) *APIResponse {
+		"no-route": NoRoute,
+		"get-all-accounts": GetAccounts,
+		"add-account": AddAccount,
+
+		"get-account": GetAccount,
+		"update-account": UpdateAccount,
+		"delete-account": DeleteAccount,
+		"lock-account": LockAccount,
+		"ban-account": BanAccount,
+
+		"create-account": CreateAccount,
+		"get-create-account-status": GetCreateAccountStatus,
+		"reset-password": ResetAccountPassword,
+		"get-reset-password-status": GetResetPasswordStatus,
+	}
+)
 
 type Account struct {
 	ID			int64	`json:"id" db:"ID" static:"true"`
@@ -92,4 +110,46 @@ func BindPasswordResetRequest(c echo.Context) *PasswordResetRequest {
 	}
 
 	return request
+}
+
+type Server struct {
+	ID			int64 	`json:"id" db:"ID" static:"true"`
+	UserID		int64	`json:userid db:"UserID" static:"true"`
+	IPAddress	int64	`json:ip_address db:"IPAddress" static:"true"`
+	Name		string	`json:name`
+}
+
+func BindServer(c echo.Context) *Server {
+	server := new(Server)
+	if err := c.Bind(server); err != nil {
+		return nil
+	}
+
+	if id, ok := ParamToInt64(c, "id"); ok {
+		server.ID = id
+	}
+
+	return server
+}
+
+type Client struct {
+	ID					int64 	`json:"id" db:"ID" static:"true"`
+	ServerID			int64	`json:"serverid" db:"ServerID" static:"true"`
+	AccountID			int64	`json:"accountid" db:"AccountID"`
+	ScriptName			string	`json:"script_name" db:"ScriptName"`
+	ScriptArguments		string	`json:"script_arguments" db:"ScriptArguments"`
+	World				int64	`json:"world" db:"World"`
+}
+
+func BindClient(c echo.Context) *Client {
+	client := new(Client)
+	if err := c.Bind(client); err != nil {
+		return nil
+	}
+
+	if id, ok := ParamToInt64(c, "id"); ok {
+		client.ID = id
+	}
+
+	return client
 }

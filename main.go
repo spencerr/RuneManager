@@ -41,17 +41,17 @@ func main() {
 	accounts.POST("/resetpw", AccountHandler).Name = "reset-password"
 	accounts.GET("/resetpw/:id", AccountHandler).Name = "get-reset-password-status"
 
-	/*servers := router.Group("/servers")
-	servers.GET("/all", getServers).Name = "get-all-servers"
-	servers.POST("/", addServer).Name = "add-server"
+	servers := router.Group("/servers")
+	servers.GET("/all", ServerHandler).Name = "get-all-servers"
+	servers.POST("/", ServerHandler).Name = "add-server"
 
-	servers.GET("/:id", getServer).Name = "get-server"
-	servers.PATCH("/:id", updateServer).Name = "update-server"
-	servers.DELETE("/:id", deleteAccount).Name = "delete-server"
+	servers.GET("/:id", ServerHandler).Name = "get-server"
+	servers.PATCH("/:id", ServerHandler).Name = "update-server"
+	servers.DELETE("/:id", ServerHandler).Name = "delete-server"
 
-	servers.GET("/:id/clients", getClientsForServer).Name = "get-all-clients-for-server"
+	servers.GET("/:id/clients", ServerHandler).Name = "get-all-clients-for-server"
 
-	clients := router.Group("/clients")
+	/*clients := router.Group("/clients")
 	clients.POST("/all", addClient).Name = "add-client"
 
 	clients.GET("/:id", getClient).Name = "get-client"
@@ -63,7 +63,11 @@ func main() {
 }
 
 func AccountHandler(c echo.Context) error {
-	return c.JSON(http.StatusOK, functions[GetRouteName(c)](&APIRequest{ ApiArguments: structs.Map(BindAccount(c)) }))
+	return c.JSON(http.StatusOK, Functions[GetRouteName(c)](&APIRequest{ ApiArguments: structs.Map(BindAccount(c)) }))
+}
+
+func ServerHandler(c echo.Context) error {
+	return c.JSON(http.StatusOK, Functions[GetRouteName(c)](&APIRequest{ ApiArguments: structs.Map(BindServer(c)) }))
 }
 
 func GetRouteName(c echo.Context) string {
@@ -73,5 +77,9 @@ func GetRouteName(c echo.Context) string {
 		}
 	}
 
-	return ""
+	return "no-route"
+}
+
+func NoRoute(request *APIRequest) *APIResponse {
+	return APIFail("no-route")
 }
