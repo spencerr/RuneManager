@@ -29,6 +29,13 @@ var (
 		"get-create-account-status": GetCreateAccountStatus,
 		"reset-password": ResetAccountPassword,
 		"get-reset-password-status": GetResetPasswordStatus,
+
+		"get-all-clients": GetAllClients,
+		"add-client": AddClient,
+		"get-client": GetClient,
+		"update-client": UpdateClient,
+		"delete-client": DeleteClient,
+		"get-clients-for-server": GetClientsForServer,
 	}
 )
 
@@ -134,6 +141,7 @@ func BindServer(c echo.Context) *Server {
 
 type Client struct {
 	ID					int64 	`json:"id" db:"ID" static:"true"`
+	UserID				int64	`json:"userid" db:"UserID" static:"true"`
 	ServerID			int64	`json:"serverid" db:"ServerID" static:"true"`
 	AccountID			int64	`json:"accountid" db:"AccountID"`
 	ScriptName			string	`json:"script_name" db:"ScriptName"`

@@ -9,6 +9,7 @@ import (
 type Config struct {
 	DatabaseConnectionString	string 	`json:"connection_string"`
 	Environment 				string	`json:"env"`
+	JWTSecret					string	`json:"jwt_secret"`
 }
 
 var (

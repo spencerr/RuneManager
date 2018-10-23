@@ -13,7 +13,7 @@ func GetServer(request *APIRequest) *APIResponse {
 	return ValidateAndSelectOne(
 		request,
 		&Server{}, 
-		"SELECT Servers.* FROM Servers JOIN Users ON Users.ID = Servers.UserID WHERE Users.ApiKey = :ApiKey", 
+		"SELECT Servers.* FROM Servers JOIN Users ON Users.ID = Servers.UserID WHERE Users.ApiKey = :ApiKey AND Servers.ID = :ID", 
 		[]string { "ApiKey", "ID" }, 
 	)
 }

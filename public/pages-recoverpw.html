@@ -11,23 +11,38 @@
         <title>RuneManager - Manage your bot farm the easy way!</title>
 
         <link href="assets/plugins/switchery/switchery.min.css" rel="stylesheet" />
-        <link href="assets/plugins/jquery-circliful/css/jquery.circliful.css" rel="stylesheet" type="text/css" />
 
         <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
         <link href="assets/css/icons.css" rel="stylesheet" type="text/css">
         <link href="assets/css/style.css" rel="stylesheet" type="text/css">
 
         <script src="assets/js/modernizr.min.js"></script>
-        
+
     </head>
+    <body>
 
+        <div class="wrapper-page">
 
-    <body class="fixed-left">
-        
-        <div id = "app">
-            
+            <div class="text-center">
+                <a href="/" class="logo-lg"><i class="mdi mdi-radar"></i> <span>Minton</span> </a>
+            </div>
+
+            <form method="post" action="#" role="form" class="text-center m-t-20">
+                <div class="alert alert-success alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    Enter your <b>Email</b> and instructions will be sent to you!
+                </div>
+                <div class="form-group m-b-0">
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="Enter Email" required="">
+                        <span class="input-group-append"> <button type="submit" class="btn btn-email btn-primary waves-effect waves-light">Reset</button> </span>
+                    </div>
+                </div>
+
+            </form>
+
         </div>
-        
+
 
         <script>
             var resizefunc = [];
@@ -51,7 +66,5 @@
         <script src="assets/js/jquery.core.js"></script>
         <script src="assets/js/jquery.app.js"></script>
 
-        <!-- Vue -->
-        <script src="/dist/build.js"></script>
     </body>
 </html>

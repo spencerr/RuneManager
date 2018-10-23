@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>WebSocket</title>
+</head>
+
+<body>
+  <p id="output"></p>
+
+  <div>
+    <button id = "get-all-accounts">Get All Accounts</button>
+
+    <form id = "add-account">
+      <p>Add Account</p>
+      <label>Email: </label> <input id = "add-account-email" type = "text" /> <br />
+      <label>Password: </label> <input id = "add-account-password" type = "password" /> <br />
+      <button id = "add-account-submit" >Submit</button>
+    </form>
+    
+    <form id = "delete-account">
+        <p>Delete Account</p>
+        <label>ID: </label> <input id = "delete-account-id" type = "text" /> <br />
+        <button id = "delete-account-submit" >Submit</button>
+      </form>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script>
+    var loc = window.location;
+    var uri = (loc.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + loc.host + loc.pathname + 'ws';
+    ws = new WebSocket(uri)
+
+    ws.onopen = function() {
+      console.log('Connected')
+    }
+
+    $('#get-all-accounts').click(function() {
+      apiRequest("get-all-accounts");
+    });
+
+    $("#add-account-submit").click(function() {
+      apiRequest("add-account", { Email: $('#add-account-email').val(), Password: $('#add-account-password').val() });
+    });
+
+    $('#delete-account-submit').click(function() {
+      apiRequest("delete-account", { ID: $('#delete-account-id').val() });
+    });
+
+    $('#add-account, #delete-account').on("submit", function(event) {
+      event.preventDefault();
+    });
+
+    ws.onmessage = function(evt) {
+      var out = document.getElementById('output');
+      out.innerHTML += evt.data + '<br>';
+    }
+
+    function apiRequest(route, args = {}) {
+      args.ApiKey = "asdf1234";
+      ws.send(JSON.stringify({
+        Type: "APIRequest",
+        ApiRoute: route,
+        ApiArguments: args
+      }));
+    }
+
+
+  </script>
+</body>
+
+</html>
